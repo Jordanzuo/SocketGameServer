@@ -2,9 +2,9 @@ package rpc
 
 import (
 	"encoding/binary"
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
 	"github.com/Jordanzuo/goutil/intAndBytesUtil"
 	"net"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -80,8 +80,22 @@ func NewClient(conn net.Conn) *Client {
 }
 
 // 获取唯一标识
+// 返回值：
+// 客户端唯一标识
 func (clientObj *Client) Id() int32 {
 	return clientObj.id
+}
+
+// 获取客户端IP地址
+// 返回值：
+// 客户端IP地址
+func (clientObj *Client) IP() string {
+	ipAndPort := strings.Split(clientObj.conn.RemoteAddr().String(), ":")
+	if len(ipAndPort) > 0 {
+		return ipAndPort[0]
+	} else {
+		return ""
+	}
 }
 
 // 追加内容
@@ -154,7 +168,7 @@ func (clientObj *Client) SendByteMessage(id int, b []byte) {
 // 判断客户端是否超时
 // 返回值：是否超时
 func (clientObj *Client) HasExpired() bool {
-	return time.Now().Unix() > clientObj.activeTime.Add(configBLL.ClientExpireSeconds*time.Second).Unix()
+	return time.Now().Unix() > clientObj.activeTime.Add(ClientExpiredTime()*time.Second).Unix()
 }
 
 // 玩家登陆

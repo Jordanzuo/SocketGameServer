@@ -1,4 +1,4 @@
-package webBLL
+package web
 
 import (
 	"encoding/json"

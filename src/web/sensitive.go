@@ -1,7 +1,6 @@
-package webBLL
+package web
 
 import (
-	"github.com/Jordanzuo/SocketGameServer/src/bll/sensitiveWordsBLL"
 	"github.com/Jordanzuo/SocketGameServer/src/model/responseDataObject"
 	"net/http"
 )
@@ -27,10 +26,10 @@ func sensitiveCallback(w http.ResponseWriter, r *http.Request) *responseDataObje
 	}
 
 	// 重新加载敏感词
-	if err := sensitiveWordsBLL.Reload(); err != nil {
-		responseObj.SetDataError()
-		return responseObj
-	}
+	// if err := sensitiveWordsBLL.Reload(); err != nil {
+	// 	responseObj.SetDataError()
+	// 	return responseObj
+	// }
 
 	return responseObj
 }

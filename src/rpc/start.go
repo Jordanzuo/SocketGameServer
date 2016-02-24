@@ -5,7 +5,6 @@ import (
 	"fmt"
 	// "github.com/Jordanzuo/SocketGameServer/src/bll/chatBLL"
 	// "github.com/Jordanzuo/SocketGameServer/src/bll/clientBLL"
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
 	// "github.com/Jordanzuo/SocketGameServer/src/bll/playerBLL"
 	// "github.com/Jordanzuo/SocketGameServer/src/model/disconnectType"
 	"github.com/Jordanzuo/goutil/logUtil"
@@ -75,7 +74,7 @@ func StartServer(wg *sync.WaitGroup) {
 	logUtil.Log("Socket服务器开始监听...", logUtil.Info, true)
 
 	// 监听指定的端口
-	listener, err := net.Listen("tcp", configBLL.SocketServerHost)
+	listener, err := net.Listen("tcp", ServerHost())
 	if err != nil {
 		panic(errors.New(fmt.Sprintf("Listen Error: %s", err)))
 	} else {

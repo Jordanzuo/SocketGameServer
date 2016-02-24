@@ -5,4 +5,4 @@
 3、推送消息
 4、重新加载敏感词
 */
-package webBLL
+package web

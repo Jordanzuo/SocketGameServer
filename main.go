@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
 	"github.com/Jordanzuo/SocketGameServer/src/rpc"
+	"github.com/Jordanzuo/SocketGameServer/src/web"
 	"github.com/Jordanzuo/goutil/fileUtil"
 	"github.com/Jordanzuo/goutil/logUtil"
 	"os"
@@ -13,8 +15,6 @@ import (
 
 import (
 	_ "github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
-	_ "github.com/Jordanzuo/SocketGameServer/src/bll/sensitiveWordsBLL"
-	_ "github.com/Jordanzuo/SocketGameServer/src/bll/webBLL"
 )
 
 var (
@@ -26,7 +26,7 @@ func init() {
 	logUtil.SetLogPath(filepath.Join(fileUtil.GetCurrentPath(), "LOG"))
 
 	// 设置WaitGroup需要等待的数量
-	wg.Add(1)
+	wg.Add(2)
 }
 
 // 处理系统信号
@@ -38,6 +38,12 @@ func signalProc() {
 		// 准备接收信息
 		<-sigs
 
+		logUtil.Log("收到退出程序的命令，开始退出……", logUtil.Info, true)
+
+		// 做一些收尾的工作
+
+		logUtil.Log("收到退出程序的命令，退出完成……", logUtil.Info, true)
+
 		// 一旦收到信号，则表明管理员希望退出程序，则先保存信息，然后退出
 		os.Exit(0)
 	}
@@ -47,8 +53,13 @@ func main() {
 	// 处理系统信号
 	go signalProc()
 
-	// 启动服务器
+	// 启动RPC服务器
+	rpc.SetParam(configBLL.SocketServerHost, configBLL.CheckExpiredInterval, configBLL.ClientExpiredTime)
 	go rpc.StartServer(&wg)
+
+	// 启动Web服务器
+	web.SetParam(configBLL.WebServerHost)
+	go web.StartServer(&wg)
 
 	// 阻塞等待，以免main线程退出
 	wg.Wait()
