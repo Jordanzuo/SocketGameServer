@@ -1,6 +1,5 @@
 /*
-项目配置的逻辑处理包，初始化所有的配置内容，其它代码需要配置时都从此包内来获取
-包括数据库配置和文件配置
+项目配置逻辑处理包，初始化所有的配置内容，其它代码需要配置时都从此包内获取
 */
 package configBLL
 
@@ -43,13 +42,13 @@ func init() {
 	// 读取配置文件（一次性读取整个文件，则使用ioutil）
 	bytes, err := ioutil.ReadFile(CONFIG_FILE_NAME)
 	if err != nil {
-		panic(errors.New("读取配置文件的内容出错"))
+		panic(errors.New(fmt.Sprintf("读取配置文件的内容出错，错误信息为：%s", err)))
 	}
 
 	// 使用json反序列化
 	config := make(map[string]interface{})
 	if err = json.Unmarshal(bytes, &config); err != nil {
-		panic(errors.New("反序列化配置文件的内容出错"))
+		panic(errors.New(fmt.Sprintf("反序列化配置文件的内容出错，错误信息为：%s", err)))
 	}
 
 	// 解析ServerGroupId

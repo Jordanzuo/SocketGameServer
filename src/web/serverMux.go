@@ -29,6 +29,7 @@ type SelfDefineMux struct {
 }
 
 func (mux *SelfDefineMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
 	responseObj := responseDataObject.NewWebResponseObject()
 
 	// 判断是否是POST方法
@@ -38,21 +39,30 @@ func (mux *SelfDefineMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 记录请求日志
+	writeRequestLog(r.RequestURI, r)
+
 	// 根据路径选择不同的处理方法
 	if f, ok := funcMap[r.RequestURI]; !ok {
 		responseObj.SetResultStatus(responseDataObject.APINotDefined)
 		responseResult(w, responseObj)
 	} else {
+		// 验证签名
+		if verifySign(r) == false {
+			responseObj.SetResultStatus(responseDataObject.SignError)
+			responseResult(w, responseObj)
+			return
+		}
+
+		// 调用处理方法并返回结果
 		responseObj = f(w, r)
 		responseResult(w, responseObj)
 	}
 }
 
-// 解析Form数据并记录日志
-func parseFormAndLog(apiName string, r *http.Request) {
-	r.ParseForm()
-
-	logUtil.Log(fmt.Sprintf("APIName:%s，请求数据：%v", apiName, r.Form), logUtil.Info, true)
+// 记录请求日志
+func writeRequestLog(apiPath string, r *http.Request) {
+	logUtil.Log(fmt.Sprintf("APIPath:%s，请求数据：%v", apiPath, r.Form), logUtil.Info, true)
 }
 
 // 验证签名
