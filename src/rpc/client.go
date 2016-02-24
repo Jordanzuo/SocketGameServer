@@ -32,6 +32,18 @@ func getIncrementId() int32 {
 	return globalClientId
 }
 
+// 获取客户端连接的IP地址
+// 返回值：
+// 客户端IP地址
+func getIP(conn *net.Conn) string {
+	ipAndPort := strings.Split(conn.RemoteAddr().String(), ":")
+	if len(ipAndPort) > 0 {
+		return ipAndPort[0]
+	} else {
+		return ""
+	}
+}
+
 // 定义客户端对象，以实现对客户端连接的封装
 type Client struct {
 	// 唯一标识
@@ -60,6 +72,15 @@ type Client struct {
 
 	// 资源版本号
 	ResourceVersionId int
+
+	// 客户端的IP地址
+	IP string
+
+	// 客户端的MAC地址
+	MAC string
+
+	// 客户端的IDFA
+	IDFA string
 }
 
 // 新建客户端对象
@@ -76,6 +97,9 @@ func NewClient(conn net.Conn) *Client {
 		ServerId:          0,
 		GameVersionId:     0,
 		ResourceVersionId: 0,
+		IP:                getIP(conn),
+		MAC:               "",
+		IDFA:              "",
 	}
 }
 
@@ -84,18 +108,6 @@ func NewClient(conn net.Conn) *Client {
 // 客户端唯一标识
 func (clientObj *Client) Id() int32 {
 	return clientObj.id
-}
-
-// 获取客户端IP地址
-// 返回值：
-// 客户端IP地址
-func (clientObj *Client) IP() string {
-	ipAndPort := strings.Split(clientObj.conn.RemoteAddr().String(), ":")
-	if len(ipAndPort) > 0 {
-		return ipAndPort[0]
-	} else {
-		return ""
-	}
 }
 
 // 追加内容
@@ -177,13 +189,17 @@ func (clientObj *Client) HasExpired() bool {
 // serverId：服务器Id
 // gameVersionId：游戏版本Id
 // resourceVersionId：资源版本Id
+// mac：客户端MAC地址
+// idfa：客户端IDFA
 // 返回值：无
-func (clientObj *Client) PlayerLogin(playerId string, partnerId, serverId, gameVersionId, resourceVersionId int) {
+func (clientObj *Client) PlayerLogin(playerId string, partnerId, serverId, gameVersionId, resourceVersionId int, mac, idfa string) {
 	clientObj.PlayerId = playerId
 	clientObj.PartnerId = partnerId
 	clientObj.ServerId = serverId
 	clientObj.GameVersionId = gameVersionId
 	clientObj.ResourceVersionId = resourceVersionId
+	clientObj.MAC = mac
+	clientObj.IDFA = idfa
 }
 
 // 玩家登出
@@ -194,6 +210,8 @@ func (clientObj *Client) PlayerLogout() {
 	clientObj.ServerId = 0
 	clientObj.GameVersionId = 0
 	clientObj.ResourceVersionId = 0
+	clientObj.MAC = ""
+	clientObj.IDFA = ""
 }
 
 // 退出

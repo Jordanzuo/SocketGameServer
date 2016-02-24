@@ -34,6 +34,9 @@ var (
 
 	// 加密Key
 	SecretKey string
+
+	// 游戏服务器地址
+	GameServerUrl string
 )
 
 func init() {
@@ -68,6 +71,9 @@ func init() {
 
 	// 解析SecretKey
 	SecretKey = initStringValue(config, "SecretKey")
+
+	// 解析GameServerUrl
+	GameServerUrl = initStringValue(config, "GameServerUrl")
 }
 
 func initIntValue(config map[string]interface{}, configName string) int {

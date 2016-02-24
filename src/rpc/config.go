@@ -14,16 +14,21 @@ var (
 
 	// 客户端过期的时间（单位：秒）
 	mClientExpiredTime time.Duration = time.Duration(0)
+
+	// 游戏服务器地址
+	mGameServerUrl string
 )
 
 // 设置服务器参数
 // serverHost：服务器监听地址
 // checkExpiredInterval：检测客户端过期的时间间隔（单位：秒）
 // clientExpireTime：客户端过期的时间（单位：秒）
-func SetParam(serverHost string, checkExpiredInterval, clientExpireTime time.Duration) {
+// gameServerUrl：游戏服务器地址
+func SetParam(serverHost string, checkExpiredInterval, clientExpireTime time.Duration, gameServerUrl string) {
 	mServerHost = serverHost
 	mCheckExpiredInterval = checkExpiredInterval
 	mClientExpiredTime = clientExpireTime
+	mGameServerUrl = gameServerUrl
 }
 
 // 获取服务器的监听地址
@@ -57,4 +62,12 @@ func ClientExpiredTime() time.Duration {
 	}
 
 	return mClientExpiredTime
+}
+
+func GameServerUrl() string {
+	if mGameServerUrl == "" {
+		panic(errors.New("mGameServerUrl尚未设置，请先设置"))
+	}
+
+	return mGameServerUrl
 }

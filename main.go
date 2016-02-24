@@ -54,7 +54,7 @@ func main() {
 	go signalProc()
 
 	// 启动RPC服务器
-	rpc.SetParam(configBLL.SocketServerHost, configBLL.CheckExpiredInterval, configBLL.ClientExpiredTime)
+	rpc.SetParam(configBLL.SocketServerHost, configBLL.CheckExpiredInterval, configBLL.ClientExpiredTime, configBLL.GameServerUrl)
 	go rpc.StartServer(&wg)
 
 	// 启动Web服务器

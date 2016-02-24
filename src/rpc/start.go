@@ -3,10 +3,6 @@ package rpc
 import (
 	"errors"
 	"fmt"
-	// "github.com/Jordanzuo/SocketGameServer/src/bll/chatBLL"
-	// "github.com/Jordanzuo/SocketGameServer/src/bll/clientBLL"
-	// "github.com/Jordanzuo/SocketGameServer/src/bll/playerBLL"
-	// "github.com/Jordanzuo/SocketGameServer/src/model/disconnectType"
 	"github.com/Jordanzuo/goutil/logUtil"
 	"net"
 	"sync"
@@ -26,7 +22,7 @@ func handleClientContent(clientObj *Client) {
 			continue
 		} else {
 			_ = id
-			// chatBLL.HanleRequest(clientObj, content)
+			handleRequest(clientObj, id, content)
 		}
 	}
 }
@@ -42,7 +38,7 @@ func handleConn(conn net.Conn) {
 
 	// 将客户端对象添加到客户端移除的channel中
 	defer func() {
-		// playerBLL.DisconnectByClient(clientObj, disconnectType.FromRpc)
+		Disconnect(clientObj)
 	}()
 
 	// 无限循环，不断地读取数据，解析数据，处理数据
