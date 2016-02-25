@@ -1,4 +1,4 @@
-package rpc
+package clientSocket
 
 import (
 	"sync"
@@ -43,9 +43,11 @@ func UnRegisterClient(clientObj *Client) {
 // serverId：服务器Id
 // gameVersionId：游戏版本Id
 // resourceVersionId：资源版本Id
+// mac：MAC
+// idfa：IDFA
 // 返回值：无
-func PlayerLogin(clientObj *Client, playerId string, partnerId, serverId, gameVersionId, resourceVersionId int) {
-	clientObj.PlayerLogin(playerId, partnerId, serverId, gameVersionId, resourceVersionId)
+func PlayerLogin(clientObj *Client, playerId string, partnerId, serverId, gameVersionId, resourceVersionId int, mac, idfa string) {
+	clientObj.PlayerLogin(playerId, partnerId, serverId, gameVersionId, resourceVersionId, mac, idfa)
 
 	// 添加到玩家列表中
 	playerMap[playerId] = clientObj

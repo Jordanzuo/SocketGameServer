@@ -5,12 +5,8 @@ import (
 	"net/http"
 )
 
-var (
-	sensitiveAPIName = "sensitive"
-)
-
 func init() {
-	registerAPI(sensitiveAPIName, sensitiveCallback)
+	registerAPI("sensitive", sensitiveCallback)
 }
 
 func sensitiveCallback(w http.ResponseWriter, r *http.Request) *responseDataObject.WebResponseObject {

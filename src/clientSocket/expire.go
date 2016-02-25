@@ -1,4 +1,4 @@
-package rpc
+package clientSocket
 
 import (
 	"fmt"
@@ -6,16 +6,11 @@ import (
 	"time"
 )
 
-func init() {
-	// 启动清理过期客户端连接的gorountine
-	go clearExpiredClient()
-}
-
 // 清理过期的客户端
 func clearExpiredClient() {
 	for {
 		// 休眠指定的时间（单位：秒）(放在此处是因为程序刚启动时并没有过期的客户端，所以先不用占用资源；并且此时LogPath尚未设置，如果直接执行后面的代码会出现panic异常)
-		time.Sleep(CheckExpiredInterval() * time.Second)
+		time.Sleep(CheckExpiredInterval * time.Second)
 
 		beforeClientCount := GetClientCount()
 

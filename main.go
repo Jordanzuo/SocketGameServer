@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
-	"github.com/Jordanzuo/SocketGameServer/src/rpc"
+	"github.com/Jordanzuo/SocketGameServer/src/clientSocket"
+	"github.com/Jordanzuo/SocketGameServer/src/gameserverSocket"
 	"github.com/Jordanzuo/SocketGameServer/src/web"
 	"github.com/Jordanzuo/goutil/fileUtil"
 	"github.com/Jordanzuo/goutil/logUtil"
@@ -26,7 +26,7 @@ func init() {
 	logUtil.SetLogPath(filepath.Join(fileUtil.GetCurrentPath(), "LOG"))
 
 	// 设置WaitGroup需要等待的数量
-	wg.Add(2)
+	wg.Add(3)
 }
 
 // 处理系统信号
@@ -53,12 +53,13 @@ func main() {
 	// 处理系统信号
 	go signalProc()
 
-	// 启动RPC服务器
-	rpc.SetParam(configBLL.SocketServerHost, configBLL.CheckExpiredInterval, configBLL.ClientExpiredTime, configBLL.GameServerUrl)
-	go rpc.StartServer(&wg)
+	// 启动为客户端服务的Socket服务器
+	go clientSocket.StartServer(&wg)
+
+	// 启动为游戏服务器服务的Socket服务器
+	go gameserverSocket.StartServer(&wg)
 
 	// 启动Web服务器
-	web.SetParam(configBLL.WebServerHost)
 	go web.StartServer(&wg)
 
 	// 阻塞等待，以免main线程退出

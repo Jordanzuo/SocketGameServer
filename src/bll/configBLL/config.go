@@ -8,75 +8,34 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"time"
 )
 
-const (
-	// 配置文件名称
-	CONFIG_FILE_NAME = "config.ini"
-)
-
-var (
-	// 服务器组Id
-	ServerGroupId int
-
-	// Socket服务器主机地址
-	SocketServerHost string
-
-	// 检查客户端过期的时间间隔
-	CheckExpiredInterval time.Duration
-
-	// 客户端过期的秒数
-	ClientExpiredTime time.Duration
-
-	// Web服务器主机地址
-	WebServerHost string
-
-	// 加密Key
-	SecretKey string
-
-	// 游戏服务器地址
-	GameServerUrl string
-)
-
-func init() {
-	// 由于服务器的运行依赖于init中执行的逻辑，所以如果出现任何的错误都直接panic，让程序启动失败；而不是让它启动成功，但是在运行时出现错误
-
+// 读取配置文件
+// configFileName：配置文件名称
+// 返回值：
+// 配置文件内容
+func ReadConfigFile(configFileName string) map[string]interface{} {
 	// 读取配置文件（一次性读取整个文件，则使用ioutil）
-	bytes, err := ioutil.ReadFile(CONFIG_FILE_NAME)
+	bytes, err := ioutil.ReadFile(configFileName)
 	if err != nil {
-		panic(errors.New(fmt.Sprintf("读取配置文件的内容出错，错误信息为：%s", err)))
+		panic(errors.New(fmt.Sprintf("读取配置文件%s的内容出错，错误信息为：%s", configFileName, err)))
 	}
 
 	// 使用json反序列化
 	config := make(map[string]interface{})
 	if err = json.Unmarshal(bytes, &config); err != nil {
-		panic(errors.New(fmt.Sprintf("反序列化配置文件的内容出错，错误信息为：%s", err)))
+		panic(errors.New(fmt.Sprintf("反序列化配置文件%s的内容出错，错误信息为：%s", configFileName, err)))
 	}
 
-	// 解析ServerGroupId
-	ServerGroupId = initIntValue(config, "ServerGroupId")
-
-	// 解析SocketServerHost
-	SocketServerHost = initStringValue(config, "SocketServerHost")
-
-	// 解析检查客户端过期的时间间隔
-	CheckExpiredInterval = time.Duration(initIntValue(config, "CheckExpiredInterval"))
-
-	// 解析客户端过期的秒数
-	ClientExpiredTime = time.Duration(initIntValue(config, "ClientExpiredTime"))
-
-	// 解析WebServerHost
-	WebServerHost = initStringValue(config, "WebServerHost")
-
-	// 解析SecretKey
-	SecretKey = initStringValue(config, "SecretKey")
-
-	// 解析GameServerUrl
-	GameServerUrl = initStringValue(config, "GameServerUrl")
+	return config
 }
 
-func initIntValue(config map[string]interface{}, configName string) int {
+// 从config配置中获取int类型的配置值
+// config：从config文件中反序列化出来的map对象
+// configName：配置名称
+// 返回值：
+// 配置值
+func GetIntConfig(config map[string]interface{}, configName string) int {
 	configValue, ok := config[configName]
 	if !ok {
 		panic(errors.New(fmt.Sprintf("不存在名为%s的配置或配置为空", configName)))
@@ -89,7 +48,12 @@ func initIntValue(config map[string]interface{}, configName string) int {
 	return int(configValue_float)
 }
 
-func initStringValue(config map[string]interface{}, configName string) string {
+// 从config配置中获取string类型的配置值
+// config：从config文件中反序列化出来的map对象
+// configName：配置名称
+// 返回值：
+// 配置值
+func GetStringConfig(config map[string]interface{}, configName string) string {
 	configValue, ok := config[configName]
 	if !ok {
 		panic(errors.New(fmt.Sprintf("不存在名为%s的配置或配置为空", configName)))

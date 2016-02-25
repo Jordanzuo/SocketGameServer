@@ -1,0 +1,6 @@
+/*
+为游戏服务器服务的Socket端；
+GameServer将需要主动推送给客户端的数据通过此Socket传输给服务器；服务器接收到数据后再推送给客户端。
+在config.go中的SetParam方法被调用之前不能使用其中定义的配置文件，所以不能定义需要用到config.go中的配置的init方法
+*/
+package gameserverSocket

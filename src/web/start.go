@@ -21,7 +21,7 @@ func StartServer(wg *sync.WaitGroup) {
 	mux := new(SelfDefineMux)
 
 	// 启动Web服务器监听
-	err := http.ListenAndServe(ServerHost(), mux)
+	err := http.ListenAndServe(ListenAddress, mux)
 	if err != nil {
 		panic(errors.New(fmt.Sprintf("ListenAndServe失败，错误信息为：%s", err)))
 	}

@@ -1,4 +1,4 @@
-package rpc
+package clientSocket
 
 import (
 	"encoding/binary"
@@ -35,7 +35,7 @@ func getIncrementId() int32 {
 // 获取客户端连接的IP地址
 // 返回值：
 // 客户端IP地址
-func getIP(conn *net.Conn) string {
+func getIP(conn net.Conn) string {
 	ipAndPort := strings.Split(conn.RemoteAddr().String(), ":")
 	if len(ipAndPort) > 0 {
 		return ipAndPort[0]
@@ -180,7 +180,7 @@ func (clientObj *Client) SendByteMessage(id int, b []byte) {
 // 判断客户端是否超时
 // 返回值：是否超时
 func (clientObj *Client) HasExpired() bool {
-	return time.Now().Unix() > clientObj.activeTime.Add(ClientExpiredTime()*time.Second).Unix()
+	return time.Now().Unix() > clientObj.activeTime.Add(ClientExpiredTime*time.Second).Unix()
 }
 
 // 玩家登陆

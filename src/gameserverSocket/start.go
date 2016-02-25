@@ -1,4 +1,4 @@
-package rpc
+package gameserverSocket
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 // clientObj：客户端对象
 func handleClientContent(clientObj *Client) {
 	for {
-		id, content, ok := clientObj.GetValidMessage()
+		content, ok := clientObj.GetValieMessage()
 		if !ok {
 			break
 		}
@@ -21,8 +21,7 @@ func handleClientContent(clientObj *Client) {
 		if len(content) == 0 {
 			continue
 		} else {
-			_ = id
-			handleRequest(clientObj, id, content)
+			// 处理数据
 		}
 	}
 }
@@ -32,14 +31,6 @@ func handleClientContent(clientObj *Client) {
 func handleConn(conn net.Conn) {
 	// 创建客户端对象
 	clientObj := NewClient(conn)
-
-	// 将客户端对象添加到客户端增加的channel中
-	RegisterClient(clientObj)
-
-	// 将客户端对象添加到客户端移除的channel中
-	defer func() {
-		Disconnect(clientObj)
-	}()
 
 	// 无限循环，不断地读取数据，解析数据，处理数据
 	for {
@@ -67,14 +58,14 @@ func StartServer(wg *sync.WaitGroup) {
 		wg.Done()
 	}()
 
-	logUtil.Log("Socket服务器开始监听...", logUtil.Info, true)
+	logUtil.Log("GameServerSocket服务器开始监听...", logUtil.Info, true)
 
 	// 监听指定的端口
-	listener, err := net.Listen("tcp", ServerHost())
+	listener, err := net.Listen("tcp", ListenAddress)
 	if err != nil {
 		panic(errors.New(fmt.Sprintf("Listen Error: %s", err)))
 	} else {
-		msg := fmt.Sprintf("Got listener for the server. (local address: %s)", listener.Addr())
+		msg := fmt.Sprintf("Got listener for gameserver. (local address: %s)", listener.Addr())
 
 		// 记录和显示日志，并且判断是否需要退出
 		logUtil.Log(msg, logUtil.Info, true)

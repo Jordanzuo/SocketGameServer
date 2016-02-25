@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
 	"github.com/Jordanzuo/SocketGameServer/src/model/responseDataObject"
 	"github.com/Jordanzuo/goutil/logUtil"
 	"github.com/Jordanzuo/goutil/securityUtil"
@@ -91,7 +90,7 @@ func verifySign(r *http.Request) bool {
 			rawString = rawString + fmt.Sprintf("%s=%s&", key, strings.Join(values, ""))
 		}
 	}
-	rawString += configBLL.SecretKey
+	rawString += SecretKey
 
 	// 判断签名是否正确
 	if sign == securityUtil.Md5String(rawString, false) {
