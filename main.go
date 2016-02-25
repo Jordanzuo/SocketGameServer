@@ -13,10 +13,6 @@ import (
 	"syscall"
 )
 
-import (
-	_ "github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
-)
-
 var (
 	wg sync.WaitGroup
 )
