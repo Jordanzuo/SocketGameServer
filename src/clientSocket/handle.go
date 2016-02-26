@@ -3,8 +3,6 @@ package clientSocket
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Jordanzuo/SocketGameServer/src/model/requestDataObject"
-	"github.com/Jordanzuo/SocketGameServer/src/model/responseDataObject"
 	"github.com/Jordanzuo/goutil/logUtil"
 )
 
@@ -15,32 +13,32 @@ var (
 )
 
 func handleRequest(clientObj *Client, id int, content []byte) {
-	responseObj := responseDataObject.NewSocketResponseObject()
+	responseObj := NewResponseObject()
 
 	// 将content进行发序列化
-	var requestDataObj requestDataObject.RequestDataObject
-	if err := json.Unmarshal(content, &requestDataObj); err != nil {
+	var requestObj RequestObject
+	if err := json.Unmarshal(content, &requestObj); err != nil {
 		logUtil.Log(fmt.Sprintf("反序列化客户端数据出错，错误信息为：%s", err), logUtil.Error, true)
 		responseObj.SetClientDataError()
 		return
 	}
 
 	// 设定IP
-	requestDataObj.IP = clientObj.IP
+	requestObj.IP = clientObj.IP
 
-	if requestDataObj.ModuleName == PlayerModuleName && requestDataObj.MethodName == LoginMethodName {
+	if requestObj.ModuleName == PlayerModuleName && requestObj.MethodName == LoginMethodName {
 
-	} else if requestDataObj.ModuleName == PlayerModuleName && requestDataObj.MethodName == ReloginMethodName {
+	} else if requestObj.ModuleName == PlayerModuleName && requestObj.MethodName == ReloginMethodName {
 
 	} else {
 		// 给公共字段赋值
-		requestDataObj.PlayerId = clientObj.PlayerId
-		requestDataObj.PartnerId = clientObj.PartnerId
-		requestDataObj.ServerId = clientObj.ServerId
-		requestDataObj.GameVersionId = clientObj.GameVersionId
-		requestDataObj.ResourceVersionId = clientObj.ResourceVersionId
-		requestDataObj.MAC = clientObj.MAC
-		requestDataObj.IDFA = clientObj.IDFA
+		requestObj.PlayerId = clientObj.PlayerId
+		requestObj.PartnerId = clientObj.PartnerId
+		requestObj.ServerId = clientObj.ServerId
+		requestObj.GameVersionId = clientObj.GameVersionId
+		requestObj.ResourceVersionId = clientObj.ResourceVersionId
+		requestObj.MAC = clientObj.MAC
+		requestObj.IDFA = clientObj.IDFA
 	}
 
 	// 发送数据给游戏服务器
