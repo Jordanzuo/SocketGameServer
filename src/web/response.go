@@ -3,7 +3,7 @@ package web
 // Web服务器的响应对象
 type ResponseObject struct {
 	// 响应结果的状态值
-	Code ResultStatus
+	Code ResponseCode
 
 	// 响应结果的状态值所对应的描述信息
 	Message string
@@ -12,27 +12,31 @@ type ResponseObject struct {
 	Data interface{}
 }
 
+// 创建新的响应对象
+// 返回值：
+// 相应对象
 func NewResponseObject() *ResponseObject {
-	return &WebResponseObject{
+	return &ResponseObject{
 		Code:    Success,
 		Message: "",
 		Data:    nil,
 	}
 }
 
-func (responseObj *ResponseObject) SetDataError() {
-	responseObj.SetResultStatus(DataError)
-}
-
+// 设置API数据错误的Code
 func (responseObj *ResponseObject) SetAPIDataError() {
-	responseObj.SetResultStatus(APIDataError)
+	responseObj.SetResponseCode(APIDataError)
 }
 
-func (responseObj *ResponseObject) SetResultStatus(rs ResultStatus) {
-	responseObj.Code = rs
-	responseObj.Message = rs.String()
+// 设置Code
+// rc：响应Code
+func (responseObj *ResponseObject) SetResponseCode(rc ResponseCode) {
+	responseObj.Code = rc
+	responseObj.Message = rc.Message()
 }
 
+// 设置数据
+// data：数据
 func (responseObj *ResponseObject) SetData(data interface{}) {
 	responseObj.Data = data
 }

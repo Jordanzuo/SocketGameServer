@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Jordanzuo/SocketGameServer/src/model/responseDataObject"
 	"github.com/Jordanzuo/goutil/logUtil"
 	"github.com/Jordanzuo/goutil/securityUtil"
 	"net/http"
@@ -13,13 +12,13 @@ import (
 
 var (
 	// 处理的方法映射表
-	funcMap = make(map[string]func(http.ResponseWriter, *http.Request) *responseDataObject.WebResponseObject)
+	funcMap = make(map[string]func(http.ResponseWriter, *http.Request) *ResponseObject)
 )
 
 // 注册API
 // apiName：API名称
 // callback：回调方法
-func registerAPI(apiName string, callback func(http.ResponseWriter, *http.Request) *responseDataObject.WebResponseObject) {
+func registerAPI(apiName string, callback func(http.ResponseWriter, *http.Request) *ResponseObject) {
 	funcMap[fmt.Sprintf("/API/%s", apiName)] = callback
 }
 
@@ -29,11 +28,11 @@ type SelfDefineMux struct {
 
 func (mux *SelfDefineMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	responseObj := responseDataObject.NewWebResponseObject()
+	responseObj := NewResponseObject()
 
 	// 判断是否是POST方法
 	if r.Method != "POST" {
-		responseObj.SetResultStatus(responseDataObject.OnlySupportPOST)
+		responseObj.SetResponseCode(OnlySupportPOST)
 		responseResult(w, responseObj)
 		return
 	}
@@ -43,12 +42,12 @@ func (mux *SelfDefineMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// 根据路径选择不同的处理方法
 	if f, ok := funcMap[r.RequestURI]; !ok {
-		responseObj.SetResultStatus(responseDataObject.APINotDefined)
+		responseObj.SetResponseCode(APINotDefined)
 		responseResult(w, responseObj)
 	} else {
 		// 验证签名
 		if verifySign(r) == false {
-			responseObj.SetResultStatus(responseDataObject.SignError)
+			responseObj.SetResponseCode(SignError)
 			responseResult(w, responseObj)
 			return
 		}
@@ -101,7 +100,7 @@ func verifySign(r *http.Request) bool {
 }
 
 // 输出结果
-func responseResult(w http.ResponseWriter, responseObj *responseDataObject.WebResponseObject) {
+func responseResult(w http.ResponseWriter, responseObj *ResponseObject) {
 	responseBytes, _ := json.Marshal(responseObj)
 	fmt.Fprintln(w, string(responseBytes))
 }
