@@ -1,7 +1,7 @@
 /*
 项目配置逻辑处理包，初始化所有的配置内容，其它代码需要配置时都从此包内获取
 */
-package configBLL
+package config
 
 import (
 	"encoding/json"

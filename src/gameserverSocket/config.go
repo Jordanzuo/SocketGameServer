@@ -1,7 +1,7 @@
 package gameserverSocket
 
 import (
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
+	"github.com/Jordanzuo/SocketGameServer/src/config"
 )
 
 const (
@@ -16,7 +16,7 @@ var (
 
 func init() {
 	// 读取配置文件内容，json类型
-	config := configBLL.ReadConfigFile(CONFIG_FILE_NAME)
+	configMap := config.ReadConfigFile(CONFIG_FILE_NAME)
 
-	ListenAddress = configBLL.GetStringConfig(config, "ListenAddress")
+	ListenAddress = config.GetStringConfig(configMap, "ListenAddress")
 }

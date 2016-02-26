@@ -1,7 +1,7 @@
 package clientSocket
 
 import (
-	"github.com/Jordanzuo/SocketGameServer/src/bll/configBLL"
+	"github.com/Jordanzuo/SocketGameServer/src/config"
 	"time"
 )
 
@@ -26,10 +26,10 @@ var (
 
 func init() {
 	// 读取配置文件内容，json类型
-	config := configBLL.ReadConfigFile(CONFIG_FILE_NAME)
+	configMap := config.ReadConfigFile(CONFIG_FILE_NAME)
 
-	ListenAddress = configBLL.GetStringConfig(config, "ListenAddress")
-	CheckExpiredInterval = time.Duration(configBLL.GetIntConfig(config, "CheckExpiredInterval"))
-	ClientExpiredTime = time.Duration(configBLL.GetIntConfig(config, "ClientExpiredTime"))
-	GameServerAPIUrl = configBLL.GetStringConfig(config, "GameServerAPIUrl")
+	ListenAddress = config.GetStringConfig(configMap, "ListenAddress")
+	CheckExpiredInterval = time.Duration(config.GetIntConfig(configMap, "CheckExpiredInterval"))
+	ClientExpiredTime = time.Duration(config.GetIntConfig(configMap, "ClientExpiredTime"))
+	GameServerAPIUrl = config.GetStringConfig(configMap, "GameServerAPIUrl")
 }
