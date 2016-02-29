@@ -10,14 +10,15 @@ var (
 	playerMap = make(map[string]*Client, 1024)
 
 	// 读写锁
-	mutex sync.RWMutex
+	mutex_client sync.RWMutex
+	mutex_player sync.RWMutex
 )
 
 // 添加新的客户端
 // clientObj：客户端对象
 func RegisterClient(clientObj *Client) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	mutex_client.Lock()
+	defer mutex_client.Unlock()
 
 	clientMap[clientObj.Id()] = clientObj
 }
@@ -25,8 +26,8 @@ func RegisterClient(clientObj *Client) {
 // 移除客户端
 // clientObj：客户端对象
 func UnRegisterClient(clientObj *Client) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	mutex_client.Lock()
+	defer mutex_client.Unlock()
 
 	// 删除玩家缓存
 	if clientObj.PlayerId != "" {
@@ -39,26 +40,34 @@ func UnRegisterClient(clientObj *Client) {
 
 // 玩家登陆
 // playerId：玩家id
-// partnerId：合作商Id
-// serverId：服务器Id
-// gameVersionId：游戏版本Id
-// resourceVersionId：资源版本Id
-// mac：MAC
-// idfa：IDFA
 // 返回值：无
-func PlayerLogin(clientObj *Client, playerId string, partnerId, serverId, gameVersionId, resourceVersionId int, mac, idfa string) {
-	clientObj.PlayerLogin(playerId, partnerId, serverId, gameVersionId, resourceVersionId, mac, idfa)
+func PlayerLogin(clientObj *Client, playerId string) {
+	clientObj.PlayerLogin(playerId)
 
 	// 添加到玩家列表中
 	playerMap[playerId] = clientObj
+}
+
+// 获取所有的客户端对象
+// 返回值：
+// 客户端对象列表
+func GetAllClient() (clientList []*Client) {
+	mutex_client.RLock()
+	defer mutex_client.RUnlock()
+
+	for _, clientObj := range clientMap {
+		clientList = append(clientList, clientObj)
+	}
+
+	return
 }
 
 // 返回过期的客户端列表
 // 返回值：
 // 过期的客户端列表
 func GetExpiredClientList() (expiredClientList []*Client) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	mutex_client.RLock()
+	defer mutex_client.RUnlock()
 
 	for _, item := range clientMap {
 		if item.HasExpired() {
@@ -71,10 +80,11 @@ func GetExpiredClientList() (expiredClientList []*Client) {
 
 // 根据客户端Id获取对应的客户端对象
 // id：客户端Id
-// 返回值：客户端对象
+// 返回值：
+// 客户端对象
 func GetClient(id int32) (*Client, bool) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	mutex_client.RLock()
+	defer mutex_client.RUnlock()
 
 	if clientObj, ok := clientMap[id]; ok {
 		return clientObj, true
@@ -83,12 +93,45 @@ func GetClient(id int32) (*Client, bool) {
 	return nil, false
 }
 
+// 根据玩家Id获取对应的客户端对象
+// playerId：玩家Id
+// 返回值：
+// 客户端对象
+func GetClientByPlayerId(playerId string) (*Client, bool) {
+	mutex_player.RLock()
+	defer mutex_player.RUnlock()
+
+	if clientObj, ok := playerMap[playerId]; ok {
+		return clientObj, true
+	}
+
+	return nil, false
+}
+
+// 根据玩家Id列表获取对应的客户端列表
+// playerIdList：玩家Id列表
+// 返回值：
+// 客户端列表
+func GetClientByPlayerIdList(playerIdList []string) (clientList []*Client) {
+	if len(playerIdList) == 0 {
+		return
+	}
+
+	for _, playerId := range playerIdList {
+		if clientObj, ok := GetClientByPlayerId(playerId); ok {
+			clientList = append(clientList, clientObj)
+		}
+	}
+
+	return
+}
+
 // 获取客户端的数量
 // 返回值：
 // 客户端数量
 func GetClientCount() int {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	mutex_client.RLock()
+	defer mutex_client.RUnlock()
 
 	return len(clientMap)
 }

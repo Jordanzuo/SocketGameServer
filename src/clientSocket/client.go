@@ -5,6 +5,7 @@ import (
 	"github.com/Jordanzuo/goutil/intAndBytesUtil"
 	"net"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -52,35 +53,21 @@ type Client struct {
 	// 客户端连接对象
 	conn net.Conn
 
+	// 客户端IP地址
+	IP string
+
 	// 接收到的消息内容
 	content []byte
 
 	// 上次活跃时间
 	activeTime time.Time
 
+	// 响应数据缓存
+	responseDataMap map[int][]*ResponseObject
+	mutex           sync.RWMutex
+
 	// 玩家id
 	PlayerId string
-
-	// 合作商Id
-	PartnerId int
-
-	// 服务器Id
-	ServerId int
-
-	// 游戏版本号
-	GameVersionId int
-
-	// 资源版本号
-	ResourceVersionId int
-
-	// 客户端的IP地址
-	IP string
-
-	// 客户端的MAC地址
-	MAC string
-
-	// 客户端的IDFA
-	IDFA string
 }
 
 // 新建客户端对象
@@ -88,18 +75,13 @@ type Client struct {
 // 返回值：客户端对象的指针
 func NewClient(conn net.Conn) *Client {
 	return &Client{
-		id:                getIncrementId(),
-		conn:              conn,
-		content:           make([]byte, 0, 1024),
-		activeTime:        time.Now(),
-		PlayerId:          "",
-		PartnerId:         0,
-		ServerId:          0,
-		GameVersionId:     0,
-		ResourceVersionId: 0,
-		IP:                getIP(conn),
-		MAC:               "",
-		IDFA:              "",
+		id:              getIncrementId(),
+		conn:            conn,
+		IP:              getIP(conn),
+		content:         make([]byte, 0, 1024),
+		activeTime:      time.Now(),
+		PlayerId:        "",
+		responseDataMap: make(map[int][]*ResponseObject),
 	}
 }
 
@@ -113,9 +95,27 @@ func (clientObj *Client) Id() int32 {
 // 追加内容
 // content：新的内容
 // 返回值：无
-func (c *Client) AppendContent(content []byte) {
-	c.content = append(c.content, content...)
-	c.activeTime = time.Now()
+func (clientObj *Client) AppendContent(content []byte) {
+	clientObj.content = append(clientObj.content, content...)
+	clientObj.activeTime = time.Now()
+}
+
+// 增加待发送数据
+// responseObj：待发送数据
+func (clientObj *Client) AddResponseObj(id int, responseObj *ResponseObject) {
+	clientObj.mutex.RLock()
+	defer clientObj.mutex.RUnlock()
+
+	if id == 0 {
+		// 推送数据
+		if list, ok := clientObj.responseDataMap[id]; ok {
+			list = append(list, responseObj)
+		}
+	} else {
+		// 普通请求的响应结果
+		list := []*ResponseObject{responseObj}
+		clientObj.responseDataMap[id] = list
+	}
 }
 
 // 获取有效的消息
@@ -185,33 +185,15 @@ func (clientObj *Client) HasExpired() bool {
 
 // 玩家登陆
 // playerId：玩家id
-// partnerId：合作商Id
-// serverId：服务器Id
-// gameVersionId：游戏版本Id
-// resourceVersionId：资源版本Id
-// mac：客户端MAC地址
-// idfa：客户端IDFA
 // 返回值：无
-func (clientObj *Client) PlayerLogin(playerId string, partnerId, serverId, gameVersionId, resourceVersionId int, mac, idfa string) {
+func (clientObj *Client) PlayerLogin(playerId string) {
 	clientObj.PlayerId = playerId
-	clientObj.PartnerId = partnerId
-	clientObj.ServerId = serverId
-	clientObj.GameVersionId = gameVersionId
-	clientObj.ResourceVersionId = resourceVersionId
-	clientObj.MAC = mac
-	clientObj.IDFA = idfa
 }
 
 // 玩家登出
 // 返回值：无
 func (clientObj *Client) PlayerLogout() {
 	clientObj.PlayerId = ""
-	clientObj.PartnerId = 0
-	clientObj.ServerId = 0
-	clientObj.GameVersionId = 0
-	clientObj.ResourceVersionId = 0
-	clientObj.MAC = ""
-	clientObj.IDFA = ""
 }
 
 // 退出

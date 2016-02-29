@@ -1,6 +1,6 @@
 package clientSocket
 
-// 请求数据对象
+// 游戏客户端的请求数据对象
 type RequestObject struct {
 	// 模块名称
 	ModuleName string

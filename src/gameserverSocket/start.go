@@ -22,6 +22,7 @@ func handleClientContent(clientObj *Client) {
 			continue
 		} else {
 			// 处理数据
+			handleRequest(content)
 		}
 	}
 }
