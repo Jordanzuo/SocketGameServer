@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/Jordanzuo/SocketGameServer/src/clientSocket"
 	"github.com/Jordanzuo/SocketGameServer/src/gameserverSocket"
 	"github.com/Jordanzuo/SocketGameServer/src/web"
 	"github.com/Jordanzuo/goutil/fileUtil"
 	"github.com/Jordanzuo/goutil/logUtil"
-	"github.com/Jordanzuo/goutil/webUtil"
 	"os"
 	"os/signal"
 	"path/filepath"

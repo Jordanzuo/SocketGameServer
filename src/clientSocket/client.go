@@ -63,8 +63,12 @@ type Client struct {
 	activeTime time.Time
 
 	// 响应数据缓存
-	responseDataMap map[int][]*ResponseObject
-	mutex           sync.RWMutex
+	responseDataMap map[int]*ResponseObject
+	responseMutex   sync.RWMutex
+
+	// 推送数据缓存
+	pushDataSlice []*ResponseObject
+	pushMutex     sync.RWMutex
 
 	// 玩家id
 	PlayerId string
@@ -81,7 +85,8 @@ func NewClient(conn net.Conn) *Client {
 		content:         make([]byte, 0, 1024),
 		activeTime:      time.Now(),
 		PlayerId:        "",
-		responseDataMap: make(map[int][]*ResponseObject),
+		responseDataMap: make(map[int]*ResponseObject),
+		pushDataSlice:   make([]*ResponseObject, 0, 1024),
 	}
 }
 
@@ -101,21 +106,22 @@ func (clientObj *Client) AppendContent(content []byte) {
 }
 
 // 增加待发送数据
-// responseObj：待发送数据
-func (clientObj *Client) AddResponseObj(id int, responseObj *ResponseObject) {
-	clientObj.mutex.RLock()
-	defer clientObj.mutex.RUnlock()
+// id：唯一标识
+// data：数据
+func (clientObj *Client) AddResponseData(id int, data *ResponseObject) {
+	clientObj.responseMutex.Lock()
+	defer clientObj.responseMutex.Unlock()
 
-	if id == 0 {
-		// 推送数据
-		if list, ok := clientObj.responseDataMap[id]; ok {
-			list = append(list, responseObj)
-		}
-	} else {
-		// 普通请求的响应结果
-		list := []*ResponseObject{responseObj}
-		clientObj.responseDataMap[id] = list
-	}
+	clientObj.responseDataMap[id] = data
+}
+
+// 增加推送数据
+// data：数据
+func (clientObj *Client) AddPushData(data *ResponseObject) {
+	clientObj.pushMutex.Lock()
+	defer clientObj.pushMutex.Unlock()
+
+	clientObj.pushDataSlice = append(clientObj.pushDataSlice, data)
 }
 
 // 获取有效的消息

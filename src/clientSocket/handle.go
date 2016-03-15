@@ -17,24 +17,25 @@ func handleRequest(clientObj *Client, id int, content []byte) {
 		return
 	}
 
-	// 重新登录Socket服务器，不需要去访问游戏服务器
-	if requestObj.ModuleName == "Player" && requestObj.MethodName == "ReLogin" {
+	// 设定IP
+	requestObj.IP = clientObj.IP
 
-	} else {
-		// 设定IP
-		requestObj.IP = clientObj.IP
+	// // 重新登录Socket服务器，不需要去访问游戏服务器
+	// if requestObj.ModuleName == "Player" && requestObj.MethodName == "ReLogin" {
 
-		// 发送数据给游戏服务器
-		// returnBytes, err := webUtil.PostWebData(GameServerAPIUrl, postDict, nil)
-		// if err != nil {
-		// 	logUtil.Log(fmt.Sprintf("请求GameServer服务器错误，错误信息为：%s", err), logUtil.Error, true)
-		// 	responseObj.SetClientDataError()
-		// 	return
-		// }
+	// } else {
 
-		// 如果是登录方法，需要解析返回值中的PlayerId
-		if requestObj.ModuleName == "Player" && (requestObj.MethodName == "Login" || requestObj.MethodName == "Login_ForTest") {
+	// 	// 发送数据给游戏服务器
+	// 	// returnBytes, err := webUtil.PostWebData(GameServerAPIUrl, postDict, nil)
+	// 	// if err != nil {
+	// 	// 	logUtil.Log(fmt.Sprintf("请求GameServer服务器错误，错误信息为：%s", err), logUtil.Error, true)
+	// 	// 	responseObj.SetClientDataError()
+	// 	// 	return
+	// 	// }
 
-		}
-	}
+	// 	// 如果是登录方法，需要解析返回值中的PlayerId
+	// 	if requestObj.ModuleName == "Player" && (requestObj.MethodName == "Login" || requestObj.MethodName == "Login_ForTest") {
+
+	// 	}
+	// }
 }
